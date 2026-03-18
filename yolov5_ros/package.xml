@@ -13,6 +13,17 @@
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>        <!-- Use system OpenCV (better with cv_bridge) -->
+  <exec_depend>python3-pil</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-requests</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+  <exec_depend>python3-pandas</exec_depend>
+  <exec_depend>python3-seaborn</exec_depend>
+  <exec_depend>python3-tqdm</exec_depend>
+  <exec_depend>python3-pip</exec_depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>cv_bridge</depend>

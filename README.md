@@ -13,23 +13,34 @@ Maybe [this one](https://github.com/Alpaca-zip/ultralytics_ros) is easier to use
 ## Installation
 
 ```bash
-mkdir -p ws_yolov5/src
-cd ws_yolov5/src
+mkdir -p yolov5_ws/src
+cd yolov5_ws/src
 
-git clone https://github.com/Ar-Ray-code/YOLOv5-ROS.git
-git clone https://github.com/Ar-Ray-code/bbox_ex_msgs.git
+git clone https://github.com/scottcandy34/YOLOv5-ROS.git
+git clone https://github.com/scottcandy34/bbox_ex_msgs.git
 
-pip3 install -r ./YOLOv5-ROS/requirements.txt
+pip3 install -r ./YOLOv5-ROS/requirements.txt --break-system-packages
 
+cd ..
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install
+
+echo "source ~/yolov5_ws/install/local_setup.bash" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 <br>
 
+## Run with QT viewer
+```bash
+ros2 run yolov5_ros yolov5_ros --ros-args -p view_img:=True
+```
+
 ## Demo
 
 ```bash
-cd ws_yolov5/
+cd yolov5_ws/
 source ./install/setup.bash
 ros2 launch yolov5_ros yolov5s_simple.launch.py
 ```
@@ -38,7 +49,7 @@ ros2 launch yolov5_ros yolov5s_simple.launch.py
 
 
 ## Requirements
-- ROS2 Foxy
+- ROS2 Jazzy (Foxy, Humble, Iron)
 - OpenCV 4
 - PyTorch
 - bbox_ex_msgs
