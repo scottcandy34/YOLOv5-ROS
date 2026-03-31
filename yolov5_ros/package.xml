@@ -2,11 +2,11 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>yolov5_ros</name>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <description>The yolov5_ros package</description>
-  <maintainer email="ray255ar@gmail.com">Ar-Ray-code</maintainer>
+  <maintainer email="scottcandy34@gmail.com">Ar-Ray-code</maintainer>
   <license>GNU GENERAL PUBLIC LICENSE Version 3</license>
-  <author email="ray255ar@gmail.com">Ar-Ray-code</author>
+  <author email="scottcandy34@gmail.com">Ar-Ray-code</author>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
@@ -24,6 +24,9 @@
   <exec_depend>python3-seaborn</exec_depend>
   <exec_depend>python3-tqdm</exec_depend>
   <exec_depend>python3-pip</exec_depend>
+  <exec_depend>python3-urllib3</exec_depend>
+  <exec_depend>python3-packaging</exec_depend>
+  <exec_depend>python3-psutil</exec_depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>cv_bridge</depend>
