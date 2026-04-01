@@ -1,3 +1,6 @@
 [submodule "bbox_ex_msgs"]
 	path = bbox_ex_msgs
 	url = https://github.com/scottcandy34/bbox_ex_msgs.git
+[submodule "yolov5_ros/yolov5"]
+	path = yolov5_ros/yolov5
+	url = https://github.com/ultralytics/yolov5.git
