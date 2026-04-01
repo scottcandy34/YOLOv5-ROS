@@ -17,8 +17,11 @@ mkdir -p yolov5_ws/src
 cd yolov5_ws/src
 
 git clone https://github.com/scottcandy34/YOLOv5-ROS.git
-git clone https://github.com/scottcandy34/bbox_ex_msgs.git
 
+cd YOLOv5-ROS
+git submodule update --init --recursive
+
+cd ..
 pip3 install -r ./YOLOv5-ROS/requirements.txt --break-system-packages
 
 cd ..

@@ -9,9 +9,14 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 
-from yolov5_ros.models.common import DetectMultiBackend
-from yolov5_ros.utils.dataloaders import IMG_FORMATS, VID_FORMATS
-from yolov5_ros.utils.general import (
+# === YOLOv5 submodule (works with --symlink-install and full install) ===
+yolov5_root = str(Path(__file__).resolve().parent.parent / "yolov5")
+if yolov5_root not in sys.path:
+    sys.path.insert(0, yolov5_root)
+
+from models.common import DetectMultiBackend
+from utils.dataloaders import IMG_FORMATS, VID_FORMATS
+from utils.general import (
     LOGGER,
     check_img_size,
     check_imshow,
@@ -19,11 +24,11 @@ from yolov5_ros.utils.general import (
     scale_boxes,      # new name (was scale_coords)
     xyxy2xywh,
 )
-from yolov5_ros.utils.plots import Annotator, colors
-from yolov5_ros.utils.torch_utils import select_device, time_sync
+from utils.plots import Annotator, colors
+from utils.torch_utils import select_device, time_sync
 
 # letterbox moved to augmentations.py in the latest YOLOv5
-from yolov5_ros.utils.augmentations import letterbox
+from utils.augmentations import letterbox
 
 import rclpy
 from rclpy.node import Node
