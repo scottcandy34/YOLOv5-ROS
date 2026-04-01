@@ -5,7 +5,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-import yaml  # ← required to read your custom Argoverse.yaml
+import yaml
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -27,8 +27,6 @@ from utils.general import (
 )
 from utils.plots import Annotator, colors
 from utils.torch_utils import select_device, time_sync
-
-# letterbox moved to augmentations.py in the latest YOLOv5
 from utils.augmentations import letterbox
 
 import rclpy
@@ -101,10 +99,19 @@ class yolov5_demo:
             try:
                 with open(self.data, errors="ignore") as f:
                     data_dict = yaml.safe_load(f)
-                self.names = data_dict.get("names", self.names)
-                if hasattr(self.model, "names"):
-                    self.model.names = self.names
-                LOGGER.info(f"✅ Loaded {len(self.names)} class names from {self.data}")
+                yaml_names = data_dict.get("names")
+                if yaml_names is not None:
+                    # Support both list and dict format in yaml
+                    if isinstance(yaml_names, dict):
+                        self.names = yaml_names
+                    else:
+                        self.names = {i: name for i, name in enumerate(yaml_names)}
+                    # Only override model if lengths match (recommended)
+                    if hasattr(self.model, "names") and len(self.model.names) == len(yaml_names):
+                        self.model.names = self.names
+                    LOGGER.info(f"✅ Loaded {len(self.names)} class names from {self.data}")
+                else:
+                    LOGGER.warning("⚠️ No 'names' key found in yaml — using model defaults")
             except Exception as e:
                 LOGGER.warning(f"⚠️ Could not load class names from {self.data}: {e}. Using model defaults.")
         else:
@@ -170,15 +177,20 @@ class yolov5_demo:
 
                 # Print results
                 for c in det[:, 5].unique():
+                    c_int = int(c)
                     n = (det[:, 5] == c).sum()
-                    self.s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, "
+                    # SAFE lookup — prevents KeyError
+                    class_name = self.names.get(c_int, f"unknown_class_{c_int}")
+                    self.s += f"{n} {class_name}{'s' * (n > 1)}, "
 
                 for *xyxy, conf, cls in reversed(det):
                     c = int(cls)
-                    label = f"{self.names[c]} {conf:.2f}"
+                    # SAFE lookup again
+                    class_name = self.names.get(c, f"unknown_class_{c}")
+                    label = f"{class_name} {conf:.2f}"
                     annotator.box_label(xyxy, label, color=colors(c, True))
 
-                    class_list.append(self.names[c])
+                    class_list.append(class_name)
                     confidence_list.append(float(conf))
                     x_min_list.append(float(xyxy[0].item()))
                     y_min_list.append(float(xyxy[1].item()))
