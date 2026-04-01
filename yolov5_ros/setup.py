@@ -10,7 +10,7 @@ package_name = 'yolov5_ros'
 setup(
     name=package_name,
     version='0.2.0',
-    packages=find_packages(),
+    packages=[package_name],
     include_package_data=True,
     data_files=[
         ('share/ament_index/resource_index/packages',
