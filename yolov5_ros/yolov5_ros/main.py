@@ -5,6 +5,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import yaml  # ← required to read your custom Argoverse.yaml
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -21,7 +22,7 @@ from utils.general import (
     check_img_size,
     check_imshow,
     non_max_suppression,
-    scale_boxes,      # new name (was scale_coords)
+    scale_boxes,
     xyxy2xywh,
 )
 from utils.plots import Annotator, colors
@@ -78,14 +79,14 @@ class yolov5_demo:
     def load_model(self):
         imgsz = (self.imagez_height, self.imagez_width)
 
-        # Load model - updated to latest YOLOv5 API
+        # Load model
         self.device = select_device(self.device)
         self.model = DetectMultiBackend(
             self.weights,
             device=self.device,
             dnn=self.dnn,
             data=self.data,
-            fp16=self.half,          # new parameter
+            fp16=self.half,
         )
         stride, self.names, pt = self.model.stride, self.model.names, self.model.pt
         imgsz = check_img_size(imgsz, s=stride)
@@ -93,7 +94,23 @@ class yolov5_demo:
         self.stride = stride
         self.imgsz = imgsz
 
-        # Warmup (supports triton if present)
+        # ─────────────────────────────────────────────────────────────
+        # FORCE class names from your Argoverse.yaml (this was the missing piece)
+        # ─────────────────────────────────────────────────────────────
+        if self.data and Path(self.data).exists():
+            try:
+                with open(self.data, errors="ignore") as f:
+                    data_dict = yaml.safe_load(f)
+                self.names = data_dict.get("names", self.names)
+                if hasattr(self.model, "names"):
+                    self.model.names = self.names
+                LOGGER.info(f"✅ Loaded {len(self.names)} class names from {self.data}")
+            except Exception as e:
+                LOGGER.warning(f"⚠️ Could not load class names from {self.data}: {e}. Using model defaults.")
+        else:
+            LOGGER.info(f"✅ Using {len(self.names)} class names embedded in the model weights")
+
+        # Warmup
         self.model.warmup(imgsz=(1 if pt or getattr(self.model, "triton", False) else 1, 3, *imgsz))
 
         self.dt, self.seen = [0.0, 0.0, 0.0], 0
@@ -152,7 +169,7 @@ class yolov5_demo:
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
 
                 # Print results
-                for c in det[:, 5].unique():   # new tensor layout: class is now at index 5
+                for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum()
                     self.s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, "
 
@@ -190,7 +207,7 @@ class yolov5_ros(Node):
 
         self.sub_image = self.create_subscription(Image, "image_raw", self.image_callback, 10)
 
-        # parameters (same as before)
+        # parameters
         FILE = Path(__file__).resolve()
         ROOT = FILE.parents[0]
         if str(ROOT) not in sys.path:
@@ -198,7 +215,7 @@ class yolov5_ros(Node):
         ROOT = Path(os.path.relpath(ROOT, Path.cwd()))
 
         self.declare_parameter("weights", str(ROOT) + "/config/yolov5s.pt")
-        self.declare_parameter("data", str(ROOT) + "/data/coco128.yaml")
+        self.declare_parameter("data", str(Path(yolov5_root)) + "/data/coco128.yaml")
         self.declare_parameter("imagez_height", 640)
         self.declare_parameter("imagez_width", 640)
         self.declare_parameter("conf_thres", 0.25)
